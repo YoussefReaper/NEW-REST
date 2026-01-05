@@ -3,9 +3,11 @@ const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
 
 require('./passport');
 
+const connectDB = require('./utils/db');
 const { swaggerUi, specs } = require('./swagger');
 
 const app = express();
@@ -30,6 +32,21 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use('/api', async (req, res, next) => {
+  if (req.path === '/health') return next();
+  if (mongoose.connection.readyState === 1) return next();
+
+  const uri = process.env.MONGO_URI;
+  if (!uri) return res.status(500).json({ error: 'Missing MONGO_URI' });
+
+  try {
+    await connectDB(uri);
+    return next();
+  } catch (err) {
+    return res.status(500).json({ error: 'Database connection failed' });
+  }
+});
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true, swaggerUrl: '/api-docs.json' }));
 app.get('/api-docs.json', (req, res) => res.json(specs));
