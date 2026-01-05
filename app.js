@@ -40,6 +40,8 @@ app.use('/api', async (req, res, next) => {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true, swaggerUrl: '/api-docs.json' }));
 app.get('/api-docs.json', (req, res) => res.json(specs));
 
+app.get('/', (req, res) => res.redirect('/api-docs'));
+
 const authSession = session({
   secret: process.env.SESSION_SECRET || 'aurocore-secret',
   resave: false,
