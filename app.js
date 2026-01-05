@@ -22,17 +22,6 @@ app.use(
   })
 );
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'aurocore-secret',
-    resave: false,
-    saveUninitialized: true
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use('/api', async (req, res, next) => {
   if (req.path === '/health') return next();
   if (mongoose.connection.readyState === 1) return next();
@@ -51,7 +40,13 @@ app.use('/api', async (req, res, next) => {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true, swaggerUrl: '/api-docs.json' }));
 app.get('/api-docs.json', (req, res) => res.json(specs));
 
-app.use('/api/auth', require('./routes/auth'));
+const authSession = session({
+  secret: process.env.SESSION_SECRET || 'aurocore-secret',
+  resave: false,
+  saveUninitialized: false
+});
+
+app.use('/api/auth', authSession, passport.initialize(), passport.session(), require('./routes/auth'));
 
 app.use('/api/journals', require('./routes/journal'));
 app.use('/api/plans', require('./routes/plan'));
