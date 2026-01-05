@@ -18,7 +18,7 @@ const options = {
         },
         servers: [
             {
-                url: "http://localhost:3000/api",
+                url: "https://new-rest.vercel.app/api",
                 description: "Development server"
             }
         ],
