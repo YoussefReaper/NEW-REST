@@ -31,7 +31,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true, swaggerUrl: '/api-docs.json' }));
 app.get('/api-docs.json', (req, res) => res.json(specs));
 
 app.use('/api/auth', require('./routes/auth'));

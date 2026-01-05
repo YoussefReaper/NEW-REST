@@ -10,15 +10,20 @@ if (!MONGO_URI) {
     process.exit(1);
 }
 
-connectDB(MONGO_URI);
-const server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+connectDB(MONGO_URI)
+    .then(() => {
+        const server = app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
 
-server.on('error', (err) => {
-    if (err && err.code === 'EADDRINUSE') {
-        console.error(`Port ${PORT} is already in use. Stop the other process or set PORT to a different value.`);
+        server.on('error', (err) => {
+            if (err && err.code === 'EADDRINUSE') {
+                console.error(`Port ${PORT} is already in use. Stop the other process or set PORT to a different value.`);
+                process.exit(1);
+            }
+            throw err;
+        });
+    })
+    .catch(() => {
         process.exit(1);
-    }
-    throw err;
-});
+    });
